@@ -2,8 +2,21 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Box Rooms</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Box Rooms — Top-Down Zombie Survival</title>
+    <meta
+      name="description"
+      content="Box Rooms is a free top-down zombie survival shooter in your browser. Explore dark hand-crafted maps, survive endless arenas, or brave a new procedural outbreak every day — solo or local co-op."
+    />
+    <meta name="theme-color" content="#0c0e12" />
+    <meta property="og:title" content="Box Rooms — Top-Down Zombie Survival" />
+    <meta property="og:description" content="Explore, scavenge and extract while smart hordes hunt you by sight and sound. Solo or 2-player co-op, free in your browser." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230c0e12'/%3E%3Crect x='6' y='9' width='20' height='18' fill='%234e6e30'/%3E%3Crect x='6' y='5' width='20' height='18' fill='%236a843c'/%3E%3Crect x='10' y='11' width='4' height='4' fill='%23e04a2a'/%3E%3Crect x='18' y='11' width='4' height='4' fill='%23e04a2a'/%3E%3C/svg%3E"
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -14,75 +27,228 @@
   <body>
     <canvas id="game"></canvas>
 
+    <!-- ───────────── HUD ───────────── -->
     <div id="hud" class="hidden">
       <div class="hud-top">
-        <div class="hud-block">
-          <span class="label">WAVE</span>
-          <span id="hud-wave">1</span>
+        <div class="hud-left">
+          <div class="hud-block">
+            <span class="label" id="hud-mode-label">WAVE</span>
+            <span id="hud-mode-value">1</span>
+          </div>
+          <div id="hud-sub" class="hud-sub"></div>
         </div>
-        <div class="hud-block score">
-          <span class="label">SCORE</span>
-          <span id="hud-score">0</span>
+        <div class="hud-center">
+          <div class="hud-block score">
+            <span class="label">SCORE</span>
+            <span id="hud-score">0</span>
+          </div>
+          <div class="combo-wrap">
+            <div id="combo-mult">x1.0</div>
+            <div class="combo-bar"><div id="combo-fill"></div></div>
+          </div>
         </div>
-        <div class="hud-block">
-          <span class="label">BEST</span>
-          <span id="hud-best">0</span>
+        <div class="hud-right">
+          <canvas id="minimap" class="hidden"></canvas>
+          <div class="hud-block right">
+            <span class="label">BEST</span>
+            <span id="hud-best">0</span>
+          </div>
         </div>
       </div>
-      <div class="combo-wrap">
-        <div id="combo-mult">x1.0</div>
-        <div class="combo-bar"><div id="combo-fill"></div></div>
-        <div id="upgrade-line">UP 0/50</div>
+      <div id="boss-bar" class="hidden">
+        <div class="boss-name">ABOMINATION</div>
+        <div class="boss-track"><div id="boss-fill"></div></div>
       </div>
-      <div id="banner" class="hidden"></div>
+      <div id="banner" class="hidden">
+        <div id="banner-text"></div>
+        <div id="banner-sub"></div>
+      </div>
       <div id="players-hud"></div>
+      <button id="btn-pause-touch" class="touch-only" aria-label="Pause">II</button>
     </div>
 
+    <div id="touch" class="hidden">
+      <div class="stick-zone"></div>
+      <div class="stick"><div class="knob"></div></div>
+      <div class="touch-buttons">
+        <button data-touch="swap" class="tb small">SWAP</button>
+        <button data-touch="shove" class="tb small">SHOVE</button>
+        <button data-touch="fire" class="tb fire">FIRE</button>
+      </div>
+    </div>
+
+    <!-- ───────────── Title ───────────── -->
     <div id="menu" class="panel-screen">
-      <div class="panel">
-        <p class="kicker">TOP-DOWN HORDE SURVIVAL</p>
-        <h1>BOX ROOMS</h1>
+      <div class="title-wrap">
+        <p class="kicker">TOP-DOWN ZOMBIE SURVIVAL</p>
+        <h1>BOX<br />ROOMS</h1>
         <p class="lede">
-          Discrete 8-way movement. No aiming — you shoot where you walk.
-          Waves pour from the doors. Stack a multiplier. Don't let it cool down.
+          8-way movement. You shoot where you walk. Scavenge dark facilities, survive endless arenas, and
+          keep moving — they hunt by sight <em>and</em> sound.
         </p>
+        <div class="seg" id="player-toggle" role="radiogroup" aria-label="Players">
+          <button class="on" data-players="1">1 Player</button>
+          <button data-players="2">2 Players</button>
+        </div>
+        <div class="mode-grid">
+          <button class="mode-card" id="btn-expedition">
+            <span class="mode-name">Expedition</span>
+            <span class="mode-desc">8 hand-crafted maps. Find the objectives, reach extraction.</span>
+            <span class="mode-meta" id="meta-expedition"></span>
+          </button>
+          <button class="mode-card" id="btn-survival">
+            <span class="mode-name">Survival</span>
+            <span class="mode-desc">Endless waves in the classic rooms. Bosses every 5th wave.</span>
+            <span class="mode-meta" id="meta-survival"></span>
+          </button>
+          <button class="mode-card" id="btn-outbreak">
+            <span class="mode-name">Outbreak</span>
+            <span class="mode-desc">Procedural maps. A new daily challenge, or roll your own seed.</span>
+            <span class="mode-meta" id="meta-outbreak"></span>
+          </button>
+        </div>
         <div class="row">
-          <button id="btn-1p" class="primary">1 Player</button>
-          <button id="btn-2p" class="primary">2 Players</button>
+          <button id="btn-help" class="ghost">How to play</button>
+          <button id="btn-settings" class="ghost">Settings</button>
         </div>
-        <div class="controls">
-          <div>
-            <strong>Player 1</strong>
-            WASD move · Space shoot/place · Q/E or 1–9 weapons · Esc pause
-          </div>
-          <div>
-            <strong>Player 2</strong>
-            Arrows move · Enter shoot/place · ,/. or Numpad weapons
-          </div>
-        </div>
+        <p class="footer" id="lifetime"></p>
       </div>
     </div>
 
-    <div id="maps" class="panel-screen hidden">
+    <!-- ───────────── Map select ───────────── -->
+    <div id="select" class="panel-screen hidden">
       <div class="panel wide">
-        <p class="kicker">CHOOSE A ROOM</p>
-        <h2 id="maps-title">Select map</h2>
+        <p class="kicker" id="select-kicker">EXPEDITION</p>
+        <h2 id="select-title">Choose a map</h2>
+        <div id="outbreak-tools" class="hidden">
+          <div class="seg" id="size-toggle">
+            <button data-size="small">Small</button>
+            <button class="on" data-size="medium">Medium</button>
+            <button data-size="large">Large</button>
+          </div>
+          <label class="seed">Seed <input id="seed-input" inputmode="numeric" maxlength="7" placeholder="123456" /></label>
+          <button id="btn-seed" class="ghost">Play seed</button>
+          <button id="btn-reroll" class="ghost">Reroll</button>
+        </div>
         <div id="map-grid"></div>
-        <button id="btn-back" class="ghost">Back</button>
+        <div class="row">
+          <button id="btn-back" class="ghost">Back</button>
+          <span class="diff-note" id="diff-note"></span>
+        </div>
       </div>
     </div>
 
-    <div id="overlay" class="panel-screen hidden">
+    <!-- ───────────── Settings ───────────── -->
+    <div id="settings" class="panel-screen hidden">
+      <div class="panel">
+        <p class="kicker">OPTIONS</p>
+        <h2>Settings</h2>
+        <div class="settings-grid">
+          <label>Difficulty
+            <select id="set-difficulty">
+              <option value="easy">Easy</option>
+              <option value="normal">Normal</option>
+              <option value="hard">Hard</option>
+              <option value="nightmare">Nightmare</option>
+            </select>
+          </label>
+          <p class="hint" id="diff-desc"></p>
+          <label>Aiming (P1)
+            <select id="set-aim">
+              <option value="classic">Classic — shoot where you walk</option>
+              <option value="mouse">Mouse — twin-stick aim</option>
+            </select>
+          </label>
+          <label>Master volume <input type="range" id="set-master" min="0" max="1" step="0.05" /></label>
+          <label>Effects <input type="range" id="set-sfx" min="0" max="1" step="0.05" /></label>
+          <label>Music <input type="range" id="set-music" min="0" max="1" step="0.05" /></label>
+          <label>Screen shake <input type="range" id="set-shake" min="0" max="1.5" step="0.1" /></label>
+          <label class="check"><input type="checkbox" id="set-numbers" /> Damage numbers</label>
+          <label>Touch controls
+            <select id="set-touch">
+              <option value="auto">Auto</option>
+              <option value="on">Always on</option>
+              <option value="off">Off</option>
+            </select>
+          </label>
+        </div>
+        <div class="row">
+          <button id="btn-settings-done" class="primary">Done</button>
+          <button id="btn-fullscreen" class="ghost">Fullscreen</button>
+          <button id="btn-reset" class="ghost danger">Reset progress</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───────────── Help ───────────── -->
+    <div id="help" class="panel-screen hidden">
       <div class="panel wide">
-        <p class="kicker" id="over-kicker">GAME OVER</p>
-        <h2 id="over-title">The rooms are lost</h2>
-        <p id="over-stats" class="lede"></p>
-        <div id="upgrade-panel">
+        <p class="kicker">FIELD MANUAL</p>
+        <h2>How to play</h2>
+        <div class="help-cols">
+          <div>
+            <h3>Controls</h3>
+            <table class="keys">
+              <tr><th></th><th>Player 1</th><th>Player 2</th></tr>
+              <tr><td>Move</td><td>WASD</td><td>Arrows</td></tr>
+              <tr><td>Fire / place</td><td>Space (or mouse)</td><td>Enter / Right Ctrl</td></tr>
+              <tr><td>Shove</td><td>F / Left Shift (RMB)</td><td>/ or Right Shift</td></tr>
+              <tr><td>Weapons</td><td>Q / E, 1–9, wheel</td><td>, / . or Numpad</td></tr>
+              <tr><td>Pause</td><td colspan="2">Esc / P</td></tr>
+            </table>
+            <p class="hint">Gamepads: left stick move, right stick aim, RT/A fire, X/B shove, LB/RB weapons, Start pause. Touch controls appear automatically on phones.</p>
+            <h3>Survive</h3>
+            <ul class="tips">
+              <li>Kills build your <b>multiplier</b> — don't let it cool down. Score unlocks new weapons and stat upgrades.</li>
+              <li>Zombies <b>see</b> in a cone and <b>hear</b> gunfire. Sneak past sleepers, or pick your fights.</li>
+              <li>A groaning zombie alerts the pack. Screamers alert <i>everything</i>.</li>
+              <li><b>Shove</b> knocks zombies back and interrupts their attacks.</li>
+              <li>Barricades (wood) slow the horde. Build your own with <b>Walls</b>, blow them open with explosives.</li>
+              <li>In co-op, a downed partner can be <b>revived</b> by standing next to them.</li>
+              <li>Shoot fireballs out of the air. Lure zombies into Bloater blasts.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Know your enemy</h3>
+            <div id="bestiary"></div>
+          </div>
+        </div>
+        <button id="btn-help-done" class="primary">Got it</button>
+      </div>
+    </div>
+
+    <!-- ───────────── Pause ───────────── -->
+    <div id="pause" class="panel-screen hidden">
+      <div class="panel">
+        <p class="kicker">PAUSED</p>
+        <h2 id="pause-title">Paused</h2>
+        <p class="lede" id="pause-sub"></p>
+        <div class="col">
+          <button id="btn-resume" class="primary">Resume</button>
+          <button id="btn-restart" class="ghost">Restart</button>
+          <button id="btn-pause-settings" class="ghost">Settings</button>
+          <button id="btn-quit" class="ghost">Quit to menu</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───────────── Results ───────────── -->
+    <div id="results" class="panel-screen hidden">
+      <div class="panel wide">
+        <p class="kicker" id="res-kicker">GAME OVER</p>
+        <h2 id="res-title">The rooms are lost</h2>
+        <div id="res-stars" class="stars"></div>
+        <div id="res-best" class="badge hidden">NEW BEST</div>
+        <div id="res-stats" class="stat-grid"></div>
+        <div id="res-kills" class="kill-row"></div>
+        <details id="upgrade-panel">
+          <summary>Upgrade track</summary>
           <div id="upgrade-summary"></div>
           <div id="upgrade-list"></div>
-        </div>
+        </details>
         <div class="row">
-          <button id="btn-retry" class="primary">Retry room</button>
+          <button id="btn-next" class="primary hidden">Next map</button>
+          <button id="btn-retry" class="primary">Retry</button>
           <button id="btn-menu" class="ghost">Menu</button>
         </div>
       </div>
