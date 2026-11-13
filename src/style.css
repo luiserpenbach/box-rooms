@@ -1,0 +1,404 @@
+:root {
+  --bg: #0c0e12;
+  --panel: #141821ee;
+  --ink: #e8edf5;
+  --muted: #9aa3b2;
+  --accent: #e2b039;
+  --p1: #4aa3d8;
+  --p2: #4ecf7a;
+  --danger: #d4453a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  overflow: hidden;
+  user-select: none;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #9a9a9a;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.panel-screen {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(ellipse at center, #1a2230cc, #08090d f0);
+  padding: 24px;
+  overflow: auto;
+}
+
+.panel {
+  width: min(560px, 100%);
+  background: var(--panel);
+  border: 1px solid #2c3444;
+  padding: 32px 28px;
+  box-shadow: 0 24px 80px #0008;
+}
+
+.panel.wide {
+  width: min(980px, 100%);
+}
+
+.kicker {
+  font-family: "Chakra Petch", sans-serif;
+  letter-spacing: 0.22em;
+  font-size: 12px;
+  color: var(--accent);
+  margin: 0 0 8px;
+}
+
+h1,
+h2 {
+  font-family: "Chakra Petch", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin: 0 0 12px;
+}
+
+h1 {
+  font-size: clamp(42px, 8vw, 72px);
+  line-height: 0.9;
+}
+
+.lede {
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0 0 22px;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+button {
+  font-family: "Chakra Petch", sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid #3a4458;
+  background: #1c2330;
+  color: var(--ink);
+  padding: 12px 18px;
+  cursor: pointer;
+}
+
+button.primary {
+  background: var(--accent);
+  color: #1a1406;
+  border-color: var(--accent);
+}
+
+button.ghost:hover,
+button.primary:hover {
+  filter: brightness(1.08);
+}
+
+.controls {
+  margin-top: 22px;
+  display: grid;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.controls strong {
+  color: var(--ink);
+  display: block;
+  font-family: "Chakra Petch", sans-serif;
+  margin-bottom: 2px;
+}
+
+#map-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 12px;
+  margin: 8px 0 18px;
+}
+
+.map-card {
+  background: #10141c;
+  border: 1px solid #2c3444;
+  padding: 8px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--ink);
+  width: 100%;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.map-card canvas {
+  width: 100%;
+  height: 90px;
+  background: #d6d6d6;
+  image-rendering: pixelated;
+}
+
+.map-card:hover,
+.map-card:focus {
+  border-color: var(--accent);
+}
+
+.map-card .name {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.map-card .best {
+  color: var(--muted);
+  font-size: 11px;
+  font-family: "IBM Plex Sans", sans-serif;
+  font-weight: 400;
+}
+
+#hud {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hud-top {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 18px 0;
+  font-family: "Chakra Petch", sans-serif;
+  color: #1a1a1a;
+  text-shadow: 0 1px 0 #fff8;
+}
+
+.hud-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.hud-block .label {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: #555;
+}
+
+.hud-block span:last-child {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.hud-block.score span:last-child {
+  color: #8a6a12;
+  font-size: 34px;
+}
+
+.combo-wrap {
+  width: min(280px, 50vw);
+  margin: 8px auto 0;
+  text-align: center;
+}
+
+#combo-mult {
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 22px;
+  color: #8a6a12;
+  text-shadow: 0 1px 0 #fff8;
+}
+
+.combo-bar {
+  height: 6px;
+  background: #00000022;
+  margin-top: 4px;
+}
+
+#upgrade-line {
+  margin-top: 6px;
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: #333;
+  text-shadow: 0 1px 0 #fff8;
+}
+
+#banner {
+  position: absolute;
+  top: 22%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: "Chakra Petch", sans-serif;
+  font-size: clamp(22px, 4vw, 42px);
+  letter-spacing: 0.12em;
+  color: #111;
+  text-shadow: 0 2px 0 #fff, 0 0 16px #fff;
+  pointer-events: none;
+}
+
+#combo-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+}
+
+#players-hud {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 16px;
+  gap: 16px;
+}
+
+.player-card {
+  min-width: 220px;
+  background: #0e1218cc;
+  border: 1px solid #2c3444;
+  padding: 8px 10px;
+}
+
+.player-card .who {
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+}
+
+.player-card.p1 .who {
+  color: var(--p1);
+}
+
+.player-card.p2 .who {
+  color: var(--p2);
+}
+
+.hp {
+  height: 8px;
+  background: #ffffff18;
+  margin: 6px 0;
+}
+
+.hp > div {
+  height: 100%;
+  background: #d4453a;
+}
+
+.weapons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.wep {
+  font-size: 10px;
+  border: 1px solid #3a4458;
+  padding: 2px 5px;
+  color: var(--muted);
+}
+
+.wep.on {
+  border-color: var(--accent);
+  color: var(--ink);
+  background: #e2b03922;
+}
+
+.wep.lock {
+  opacity: 0.35;
+}
+
+#upgrade-panel {
+  margin: 4px 0 18px;
+}
+
+#upgrade-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-bottom: 10px;
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+#upgrade-summary strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+#upgrade-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  max-height: min(46vh, 380px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.up-item {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 7px 8px;
+  background: #10141c;
+  border: 1px solid #2c3444;
+  font-size: 12px;
+}
+
+.up-item .n {
+  font-family: "Chakra Petch", sans-serif;
+  color: var(--muted);
+}
+
+.up-item .name {
+  color: var(--ink);
+}
+
+.up-item .score {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.up-item.got {
+  border-color: #e2b03966;
+}
+
+.up-item.got .name {
+  color: var(--accent);
+}
+
+.up-item.next {
+  border-color: var(--accent);
+  background: #e2b03918;
+}
+
+.up-item.lock {
+  opacity: 0.4;
+}
+
+.up-item.start {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 640px) {
+  #upgrade-list {
+    grid-template-columns: 1fr;
+  }
+}

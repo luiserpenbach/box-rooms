@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Box Rooms</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <canvas id="game"></canvas>
+
+    <div id="hud" class="hidden">
+      <div class="hud-top">
+        <div class="hud-block">
+          <span class="label">WAVE</span>
+          <span id="hud-wave">1</span>
+        </div>
+        <div class="hud-block score">
+          <span class="label">SCORE</span>
+          <span id="hud-score">0</span>
+        </div>
+        <div class="hud-block">
+          <span class="label">BEST</span>
+          <span id="hud-best">0</span>
+        </div>
+      </div>
+      <div class="combo-wrap">
+        <div id="combo-mult">x1.0</div>
+        <div class="combo-bar"><div id="combo-fill"></div></div>
+        <div id="upgrade-line">UP 0/50</div>
+      </div>
+      <div id="banner" class="hidden"></div>
+      <div id="players-hud"></div>
+    </div>
+
+    <div id="menu" class="panel-screen">
+      <div class="panel">
+        <p class="kicker">TOP-DOWN HORDE SURVIVAL</p>
+        <h1>BOX ROOMS</h1>
+        <p class="lede">
+          Discrete 8-way movement. No aiming — you shoot where you walk.
+          Waves pour from the doors. Stack a multiplier. Don't let it cool down.
+        </p>
+        <div class="row">
+          <button id="btn-1p" class="primary">1 Player</button>
+          <button id="btn-2p" class="primary">2 Players</button>
+        </div>
+        <div class="controls">
+          <div>
+            <strong>Player 1</strong>
+            WASD move · Space shoot/place · Q/E or 1–9 weapons · Esc pause
+          </div>
+          <div>
+            <strong>Player 2</strong>
+            Arrows move · Enter shoot/place · ,/. or Numpad weapons
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="maps" class="panel-screen hidden">
+      <div class="panel wide">
+        <p class="kicker">CHOOSE A ROOM</p>
+        <h2 id="maps-title">Select map</h2>
+        <div id="map-grid"></div>
+        <button id="btn-back" class="ghost">Back</button>
+      </div>
+    </div>
+
+    <div id="overlay" class="panel-screen hidden">
+      <div class="panel wide">
+        <p class="kicker" id="over-kicker">GAME OVER</p>
+        <h2 id="over-title">The rooms are lost</h2>
+        <p id="over-stats" class="lede"></p>
+        <div id="upgrade-panel">
+          <div id="upgrade-summary"></div>
+          <div id="upgrade-list"></div>
+        </div>
+        <div class="row">
+          <button id="btn-retry" class="primary">Retry room</button>
+          <button id="btn-menu" class="ghost">Menu</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
